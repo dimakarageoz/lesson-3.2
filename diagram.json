@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "author": "Дмитрий Карагеоз",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-s3-devkitc-1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": { "builder": "esp-idf" }
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr1",
+      "top": -25.6,
+      "left": 154.4,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 51.95,
+      "left": 134.4,
+      "attrs": { "value": "1000" }
+    },
+    { "type": "wokwi-led", "id": "led1", "top": 73.2, "left": 147.8, "attrs": { "color": "red" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "ldr1:AO", "esp:2", "green", [ "h28.8", "v47.48" ] ],
+    [ "ldr1:GND", "esp:GND.2", "black", [ "v-48.4", "h-234.97" ] ],
+    [ "ldr1:VCC", "esp:5V", "red", [ "h86.4", "v278.4", "h-407.72" ] ],
+    [ "esp:1", "r1:1", "green", [ "h0" ] ],
+    [ "r1:2", "led1:A", "green", [ "v0" ] ],
+    [ "led1:C", "esp:GND.2", "green", [ "h-38", "v-86.22" ] ]
+  ],
+  "dependencies": {}
+}
