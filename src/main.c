@@ -5,6 +5,9 @@
 #include <esp_adc/adc_cali_scheme.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
+
+#include "ema.h"
+
 #include "config.h"
 
 #define LED_PIN LED_PIN_DEFAULT
@@ -70,7 +73,8 @@ void changeLightState(int nextState) {
 
 void lightADCReaderHandler(
     adc_oneshot_unit_handle_t *unitHandler,
-    adc_cali_handle_t *calibrationHandle
+    adc_cali_handle_t *calibrationHandle,
+    EmaFilterCoefficient *emaFilter
 ) {
     int adc_raw = 0, voltage = 0;
 
@@ -78,7 +82,9 @@ void lightADCReaderHandler(
 
     ESP_ERROR_CHECK(adc_cali_raw_to_voltage(*calibrationHandle, adc_raw, &voltage));
 
-    changeLightState(voltage > LED_SWITCH_VOLTAGE ? 1 : 0);
+    int filteredVoltage = exponentialMovingAverage(voltage, emaFilter);
+
+    changeLightState(filteredVoltage > LED_SWITCH_VOLTAGE ? 1 : 0);
 }
 
 void setup(
@@ -93,11 +99,12 @@ void setup(
 void app_main() {
     adc_oneshot_unit_handle_t unitHandler = NULL;
     adc_cali_handle_t calibrationHandle = NULL;
+    EmaFilterCoefficient *emaFilter = createEmaFilterCoefficient(0.5f);
 
     setup(&unitHandler, &calibrationHandle);
 
     while (1) {
-        lightADCReaderHandler(&unitHandler, &calibrationHandle);
+        lightADCReaderHandler(&unitHandler, &calibrationHandle, emaFilter);
 
         wait(20);
     }
